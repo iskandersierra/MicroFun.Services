@@ -1,12 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Include="Library.fs" />
+    <Compile Include="Preamble.fs" />
+    <Compile Include="Obj.fs" />
+    <Compile Include="Tuples.fs" />
+    <Compile Include="Seq.fs" />
+    <Compile Include="Exn.fs" />
+    <Compile Include="Option.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="Disposable.fs" />
+    <Compile Include="Comparer.fs" />
+    <Compile Include="String.fs" />
+    <Compile Include="StringBuilder.fs" />
+    <Compile Include="Bytes.fs" />
+    <Compile Include="Crypto.fs" />
   </ItemGroup>
-
 </Project>
