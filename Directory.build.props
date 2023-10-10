@@ -1,0 +1,12 @@
+﻿<Project>
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>3239;FS0025;FS0049;$(WarningsAsErrors)</WarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Iskander Sierra</Authors>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+</Project>
