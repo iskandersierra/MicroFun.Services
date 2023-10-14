@@ -32,10 +32,10 @@ let ``Bytes.ofHexString with odd number of characters`` (NonNegativeInt halfLeng
     Assert.Equal<string>(expected, exn.Message)
 
 [<Theory>]
-[<InlineData("0G", "0G")>]
-[<InlineData("AbCDeFgh00", "gh")>]
-let ``Bytes.ofHexString with invalid hex pairs`` (text: string) (invalid: string) =
-    let expected = $@"lang:MicroFun.Error.Bytes.InvalidHexPair|found={invalid}"
+[<InlineData("0G", "0G", 0)>]
+[<InlineData("AbCDeFgh00", "gh", 6)>]
+let ``Bytes.ofHexString with invalid hex pairs`` (text: string) (invalid: string) (atIndex: int) =
+    let expected = $@"lang:MicroFun.Error.Bytes.InvalidHexPair|found={invalid}|at={atIndex}"
     let exn = Assert.Throws(fun () -> Bytes.ofHexString text |> ignore)
     Assert.Equal<string>(expected, exn.Message)
 

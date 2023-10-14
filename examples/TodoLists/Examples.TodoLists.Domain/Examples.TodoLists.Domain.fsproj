@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TodoListTypes.fs" />
+    <Compile Include="TodoListValidation.fs" />
+    <Compile Include="TodoListAggregate.fs" />
+    <Compile Include="TodoListSimpleProjection.fs" />
+    <Compile Include="TodoListDetailsProjection.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.Domain\MicroFun.Shared.Domain.fsproj" />
+  </ItemGroup>
+
+</Project>

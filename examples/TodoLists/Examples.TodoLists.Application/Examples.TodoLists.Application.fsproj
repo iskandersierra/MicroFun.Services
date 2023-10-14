@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TodoListCommandDtos.fs" />
+    <Compile Include="TodoListCommandServices.fs" />
+    <Compile Include="TodoListQueryDtos.fs" />
+    <Compile Include="TodoListQueryServices.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.Application\MicroFun.Shared.Application.fsproj" />
+  </ItemGroup>
+
+</Project>

@@ -21,6 +21,8 @@ module String =
     let inline isNullOrWhiteSpace (source: string) = String.IsNullOrWhiteSpace source
     let isNotNullOrWhiteSpace = isNullOrWhiteSpace >> not
 
+    let inline emptyWhenNull (source: string) = if isNull source then String.Empty else source
+
 
     let inline indexOf (value: string) (source: string) = source.IndexOf(value)
     let inline indexOfChar (value: char) (source: string) = source.IndexOf(value)
@@ -173,4 +175,3 @@ module String =
     let inline toUpper (source: string) = source.ToUpper()
     let inline toUpperWithCulture (culture: CultureInfo) (source: string) = source.ToUpper(culture)
     let inline toUpperInvariant (source: string) = source.ToUpperInvariant()
-

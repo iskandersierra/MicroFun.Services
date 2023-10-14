@@ -4,6 +4,7 @@ module MicroFun.Bytes
 open System
 open System.Text
 open System.Linq
+open FsToolkit.ErrorHandling
 
 let inline toBase64String (bytes: byte []) = Convert.ToBase64String(bytes)
 let inline ofBase64String (s: string) = Convert.FromBase64String(s)
@@ -58,23 +59,54 @@ let private toHexStringWith (cache: Lazy<string []>) (bytes: byte []) =
 let toUppercaseHexString = toHexStringWith indexToUpperHex
 let toLowercaseHexString = toHexStringWith indexToLowerHex
 
-let ofHexString (s: string) =
-    let stringLength = s.Length
+[<RequireQualifiedAccess>]
+type OfHexStringError =
+    | ExpectedEvenChars of found: int
+    | InvalidHexPair of found: string * atCharIndex: int
 
-    if stringLength = 0 then
-        [||]
-    elif stringLength &&& 1 <> 0 then
-        failwith $"lang:MicroFun.Error.Bytes.ExpectedEvenChars|found={stringLength}"
-    else
-        let byteCount = s.Length >>> 1
-        let data = hexToIndex.Value
-        let bytes = Array.init byteCount (fun byteIndex ->
-            let hex = s.Substring(byteIndex <<< 1, 2)
-            match data.TryGetValue(hex) with
-            | false, _ -> failwith  $"lang:MicroFun.Error.Bytes.InvalidHexPair|found={hex}"
-            | true, byte -> byte)
+exception OfHexStringException of OfHexStringError
 
-        bytes
+let tryOfHexString (s: string) : Result<byte[], OfHexStringError> =
+    result {
+        let stringLength = s.Length
 
-let inline tryOfHexString s =
-    Result.tryWith (fun () -> ofHexString s)
+        if stringLength = 0 then
+            return [||]
+
+        elif stringLength &&& 1 <> 0 then
+            return! Error(OfHexStringError.ExpectedEvenChars stringLength)
+
+        else
+            let byteCount = s.Length >>> 1
+            let data = hexToIndex.Value
+            let bytes = Array.zeroCreate<byte> byteCount
+
+            let rec loop byteIndex =
+                result {
+                    if byteIndex >= byteCount then
+                        return ()
+                    else
+                        let charIndex = byteIndex <<< 1
+                        let hex = s.Substring(charIndex, 2)
+                        match data.TryGetValue(hex) with
+                        | false, _ ->
+                            return! Error(OfHexStringError.InvalidHexPair(hex, charIndex))
+                        | true, byte ->
+                            bytes.[byteIndex] <- byte
+                            return! loop (byteIndex + 1)
+                }
+
+            do! loop 0
+
+            return bytes
+    }
+
+let ofHexString (s: string) : byte[] =
+    match tryOfHexString s with
+    | Ok bytes -> bytes
+    | Error error ->
+        match error with
+        | OfHexStringError.ExpectedEvenChars found ->
+            failwith $"lang:MicroFun.Error.Bytes.ExpectedEvenChars|found={found}"
+        | OfHexStringError.InvalidHexPair (found, atCharIndex) ->
+            failwith $"lang:MicroFun.Error.Bytes.InvalidHexPair|found={found}|at={atCharIndex}"

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TodoListController.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="TodoListController.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.RestApi\MicroFun.Shared.RestApi.fsproj" />
+    <ProjectReference Include="..\Examples.TodoLists.Application\Examples.TodoLists.Application.fsproj" />
+  </ItemGroup>
+
+</Project>
