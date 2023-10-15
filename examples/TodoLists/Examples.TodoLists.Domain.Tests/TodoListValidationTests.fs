@@ -15,11 +15,11 @@ open Examples.TodoLists.Domain
 [<InlineData("Ab")>]
 [<InlineData("Too long title                                                                                      .")>]
 let ``TodoListTitle.parse invalid`` (title: string) =
-    let actual = TodoListTitle.Parse title
+    let actual = TodoListTitle.TryParse title
 
     let expectedError =
         EncodedError.create
-            StringValueType.LangErrorMustHaveProperLength
+            StringValueType.LangErrorMustHaveLengthBetween
             ([ "minLength", TodoListTitleType.MinLength.ToString()
                "maxLength", TodoListTitleType.MaxLength.ToString() ]
              |> Map.ofList)
@@ -43,7 +43,7 @@ let ``TodoListTitle.parse invalid`` (title: string) =
 [<InlineData("Not too long title                                                                                 .")>]
 let ``TodoListTitle.parse valid`` (title: string) =
     let expected = title.Trim()
-    let actual = TodoListTitle.Parse title
+    let actual = TodoListTitle.TryParse title
 
     match actual with
     | Ok value -> Assert.Equal<string>(expected, TodoListTitle.GetValue value)
@@ -70,15 +70,15 @@ let ``TodoListTitle.mapValue`` () =
 [<InlineData("Ab")>]
 [<InlineData("Too long title                                                                                      .")>]
 let ``TodoItemTitle.parse invalid`` (title: string) =
-    let actual = TodoItemTitle.parse title
+    let actual = TodoItemTitle.TryParse title
 
     let expectedError =
         EncodedError.create
-            StringValueType.LangErrorMustHaveProperLength
-            ([ "minLength", TodoItemTitle.MinLength.ToString()
-               "maxLength", TodoItemTitle.MaxLength.ToString() ]
+            StringValueType.LangErrorMustHaveLengthBetween
+            ([ "minLength", TodoItemTitleType.MinLength.ToString()
+               "maxLength", TodoItemTitleType.MaxLength.ToString() ]
              |> Map.ofList)
-            TodoItemTitle.FieldName
+            TodoItemTitleType.FieldName
 
     match actual with
     | Ok value -> Assert.Fail $"Expected error, but got {value}"
@@ -98,22 +98,22 @@ let ``TodoItemTitle.parse invalid`` (title: string) =
 [<InlineData("Not too long title                                                                                 .")>]
 let ``TodoItemTitle.parse valid`` (title: string) =
     let expected = title.Trim()
-    let actual = TodoItemTitle.parse title
+    let actual = TodoItemTitle.TryParse title
 
     match actual with
-    | Ok value -> Assert.Equal<string>(expected, TodoItemTitle.getValue value)
+    | Ok value -> Assert.Equal<string>(expected, TodoItemTitle.GetValue value)
     | Error error -> Assert.Fail $"Expected value, but got error: {error}"
 
 [<Fact>]
 let ``TodoItemTitle.mapValue`` () =
-    let title = TodoItemTitle.unsafeParse "valid title"
+    let title = TodoItemTitle.UnsafeParse "valid title"
 
     let actual =
         title
-        |> TodoItemTitle.mapValue (sprintf "Some %s")
+        |> TodoItemTitle.MapValue (sprintf "Some %s")
 
     let expected =
-        TodoItemTitle.unsafeParse "Some valid title"
+        TodoItemTitle.UnsafeParse "Some valid title"
 
     Assert.Equal<TodoItemTitle>(expected, actual)
 
@@ -122,7 +122,7 @@ let ``TodoItemTitle.mapValue`` () =
 [<InlineData(0)>]
 [<InlineData(-1)>]
 let ``TodoItemId.parse invalid`` (itemId: int) =
-    let actual = TodoItemId.parse itemId
+    let actual = TodoItemId.TryParse itemId
 
     let expectedError =
         EncodedError.create Int32ValueType.LangErrorMustBePositive Map.empty TodoItemId.FieldName
@@ -144,17 +144,17 @@ let ``TodoItemId.parse invalid`` (itemId: int) =
 [<InlineData(100)>]
 let ``TodoItemId.parse valid`` (itemId: int) =
     let expected = itemId
-    let actual = TodoItemId.parse itemId
+    let actual = TodoItemId.TryParse itemId
 
     match actual with
-    | Ok value -> Assert.Equal<int>(expected, TodoItemId.getValue value)
+    | Ok value -> Assert.Equal<int>(expected, TodoItemId.GetValue value)
     | Error error -> Assert.Fail $"Expected value, but got error: {error}"
 
 [<Fact>]
 let ``TodoItemId.mapValue`` () =
-    let itemId = TodoItemId.unsafeParse 42
-    let actual = itemId |> TodoItemId.mapValue ((+) 10)
-    let expected = TodoItemId.unsafeParse 52
+    let itemId = TodoItemId.UnsafeParse 42
+    let actual = itemId |> TodoItemId.MapValue ((+) 10)
+    let expected = TodoItemId.UnsafeParse 52
     Assert.Equal<TodoItemId>(expected, actual)
 
 
@@ -171,7 +171,7 @@ let assertSameCommandResults (expected: ValidationResult<TodoListCommand>) (actu
 let ``TodoListCommand.parseCreate`` (title: string) =
     let expected =
         validate {
-            let! title = TodoListTitle.Parse title
+            let! title = TodoListTitle.TryParse title
             return TodoListCommand.Create title
         }
 
@@ -185,7 +185,7 @@ let ``TodoListCommand.parseCreate`` (title: string) =
 let ``TodoListCommand.parseChangeTitle`` (title: string) =
     let expected =
         validate {
-            let! title = TodoListTitle.Parse title
+            let! title = TodoListTitle.TryParse title
             return TodoListCommand.ChangeTitle title
         }
 
@@ -208,7 +208,7 @@ let ``TodoListCommand.parseArchive`` () =
 let ``TodoListCommand.parseAddItem`` (title: string) =
     let expected =
         validate {
-            let! title = TodoItemTitle.parse title
+            let! title = TodoItemTitle.TryParse title
             return TodoListCommand.AddItem title
         }
 
@@ -224,8 +224,8 @@ let ``TodoListCommand.parseAddItem`` (title: string) =
 let ``TodoListCommand.parseChangeItemTitle`` (itemId: int) (title: string) =
     let expected =
         validate {
-            let! itemId = TodoItemId.parse itemId
-            and! title = TodoItemTitle.parse title
+            let! itemId = TodoItemId.TryParse itemId
+            and! title = TodoItemTitle.TryParse title
             return TodoListCommand.ChangeItemTitle(itemId, title)
         }
 
@@ -240,7 +240,7 @@ let ``TodoListCommand.parseChangeItemTitle`` (itemId: int) (title: string) =
 let ``TodoListCommand.parseCompleteItem`` (itemId: int) =
     let expected =
         validate {
-            let! itemId = TodoItemId.parse itemId
+            let! itemId = TodoItemId.TryParse itemId
             return TodoListCommand.CompleteItem(itemId)
         }
 
@@ -254,7 +254,7 @@ let ``TodoListCommand.parseCompleteItem`` (itemId: int) =
 let ``TodoListCommand.parseReopenItem`` (itemId: int) =
     let expected =
         validate {
-            let! itemId = TodoItemId.parse itemId
+            let! itemId = TodoItemId.TryParse itemId
             return TodoListCommand.ReopenItem(itemId)
         }
 
@@ -268,7 +268,7 @@ let ``TodoListCommand.parseReopenItem`` (itemId: int) =
 let ``TodoListCommand.parseArchiveItem`` (itemId: int) =
     let expected =
         validate {
-            let! itemId = TodoItemId.parse itemId
+            let! itemId = TodoItemId.TryParse itemId
             return TodoListCommand.ArchiveItem(itemId)
         }
 

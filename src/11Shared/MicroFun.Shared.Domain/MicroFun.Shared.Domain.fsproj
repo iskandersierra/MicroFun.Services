@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Validations.fs" />
+    <Compile Include="EncodedError.fs" />
+    <Compile Include="ValueTypes.fs" />
   </ItemGroup>
 
   <ItemGroup>

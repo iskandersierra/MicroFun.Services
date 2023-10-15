@@ -37,7 +37,7 @@ module TodoListState =
     let create title =
         { TodoListState.title = title
           items = []
-          nextId = TodoItemId.initial }
+          nextId = TodoItemId.UnsafeParse 1 }
 
     let setTitle title (state: TodoListState) = { state with title = title }
     let setNextId nextId (state: TodoListState) = { state with nextId = nextId }
@@ -94,7 +94,7 @@ module TodoListAggregate =
             aggregate
             |> mapExisting (
                 TodoListState.addItem (TodoItemState.create itemId title)
-                >> TodoListState.setNextId (itemId |> TodoItemId.mapValue ((+) 1))
+                >> TodoListState.setNextId (itemId |> TodoItemId.MapValue ((+) 1))
             )
 
         | TodoListEvent.ItemTitleChanged (itemId, title) ->
