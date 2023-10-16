@@ -157,6 +157,9 @@ module ValueType =
 [<RequireQualifiedAccess>]
 module StringValueType =
     [<Literal>]
+    let DefaultRandomLength = 12
+
+    [<Literal>]
     let LangErrorMustNotBeShorterThan =
         "lang:MicroFun.Shared.Domain.StringValueType.Error.MustNotBeShorterThan"
 
@@ -168,32 +171,15 @@ module StringValueType =
     let LangErrorMustHaveLengthBetween =
         "lang:MicroFun.Shared.Domain.StringValueType.Error.MustHaveLengthBetween"
 
-    [<RequireQualifiedAccess>]
-    module WithMessage =
-        let mustHaveProperLengthValidator minLength maxLength message : Validator<string, string> =
-            Check.WithMessage.String.betweenLen minLength maxLength message
-
-    let mustHaveProperLengthValidator minLength maxLength =
-        let data =
-            [ "minLength", minLength.ToString()
-              "maxLength", maxLength.ToString() ]
-            |> Map.ofList
-
-        WithMessage.mustHaveProperLengthValidator
-            minLength
-            maxLength
-            (EncodedError.prepareFormatted LangErrorMustHaveLengthBetween data)
-
-    let parseTrimmed (field: string) (unsafeParse: string -> 'valueType) (validator: Validator<string, string>) =
-        String.emptyWhenNull
-        >> String.trim
-        >> ValueType.parse field unsafeParse validator
+    [<Literal>]
+    let LangErrorMustBeEntityId =
+        "lang:MicroFun.Shared.Domain.StringValueType.Error.MustBeEntityId"
 
 
 [<Extension>]
 type StringValueTypeExtensions() =
     [<Extension>]
-    static member EnsureString(this: ValueType.BuilderForValidations<'valueType, string>) =
+    static member EnsureNotNull(this: ValueType.BuilderForValidations<'valueType, string>) =
         let validator = fun _field -> String.emptyWhenNull >> Ok
         this.WithPrecondition validator
 
@@ -253,104 +239,34 @@ type StringValueTypeExtensions() =
 
         this.WithValidator validator
 
-[<RequireQualifiedAccess>]
-module EntityIdValueType =
-    [<Literal>]
-    let SuffixPattern = "[a-zA-Z0-9-]+"
+    [<Extension>]
+    static member IsEntityId
+        (
+            this: ValueType.BuilderForValidations<'valueType, string>,
+            prefix: string,
+            ?randomLength: int
+        ) =
+        let randomLength =
+            match randomLength with
+            | Some length when length <= 0 -> failwithf "randomLength must be greater than 0, given %d" length
+            | Some length when length >= 100 -> failwithf "randomLength must be less than 100, given %d" length
+            | Some length -> length
+            | None -> StringValueType.DefaultRandomLength
 
-    [<Literal>]
-    let SuffixMinLength = 1
+        let pattern = $@"^%s{Regex.Escape(prefix)}[a-zA-Z0-9-_]{{%d{randomLength}}}$"
 
-    [<Literal>]
-    let SuffixMaxLength = 32
+        let data =
+            [ "prefix", prefix
+              "randomLength", randomLength.ToString() ]
+            |> Map.ofList
 
-    [<Literal>]
-    let LangErrorMustHaveProperPrefix =
-        "lang:MicroFun.Shared.Domain.EntityIdValueType.Error.MustHaveProperPrefix"
-
-
-    type ValidatorOptions =
-        { minLength: int
-          maxLength: int
-          pattern: string }
-
-    type PrefixedValidatorOptions =
-        { suffixMinLength: int
-          suffixMaxLength: int
-          suffixPattern: string }
-
-
-    [<RequireQualifiedAccess>]
-    module WithMessage =
-        let validatorWith (options: ValidatorOptions) message : Validator<string, string> =
-            let lengthValidator =
-                StringValueType.mustHaveProperLengthValidator options.minLength options.maxLength
-
-            let prefixValidator =
-                Check.WithMessage.String.pattern options.pattern message
-
-            ValidatorGroup(lengthValidator)
-                .And(prefixValidator)
-                .Build()
+        let message =
+            EncodedError.prepareFormatted StringValueType.LangErrorMustBeEntityId data
 
         let validator =
-            validatorWith
-                { minLength = SuffixMinLength
-                  maxLength = SuffixMaxLength
-                  pattern = $"^{SuffixPattern}$" }
+            Check.WithMessage.String.pattern pattern message
 
-        let prefixedValidatorWith
-            (options: PrefixedValidatorOptions)
-            (prefix: string)
-            message
-            : Validator<string, string> =
-            if String.isNullOrWhiteSpace prefix then
-                failwith "prefix cannot be null or whitespace"
-
-            validatorWith
-                { minLength = prefix.Length + options.suffixMinLength
-                  maxLength = prefix.Length + options.suffixMaxLength
-                  pattern = $"^{Regex.Escape(prefix)}{options.suffixPattern}$" }
-                message
-
-        let prefixedValidator =
-            prefixedValidatorWith
-                { suffixMinLength = SuffixMinLength
-                  suffixMaxLength = SuffixMaxLength
-                  suffixPattern = SuffixPattern }
-
-    let validatorWith options prefix =
-        let data =
-            [ "prefix", prefix
-              "minLength", options.minLength.ToString()
-              "maxLength", options.maxLength.ToString()
-              "pattern", options.pattern ]
-            |> Map.ofList
-
-        WithMessage.validatorWith options (EncodedError.prepareFormatted LangErrorMustHaveProperPrefix data)
-
-    let validator prefix =
-        let data = [ "prefix", prefix ] |> Map.ofList
-        WithMessage.validator (EncodedError.prepareFormatted LangErrorMustHaveProperPrefix data)
-
-    let prefixedValidatorWith options prefix =
-        let data =
-            [ "prefix", prefix
-              "suffixMinLength", options.suffixMinLength.ToString()
-              "suffixMaxLength", options.suffixMaxLength.ToString()
-              "suffixPattern", options.suffixPattern ]
-            |> Map.ofList
-
-        WithMessage.prefixedValidatorWith
-            options
-            prefix
-            (EncodedError.prepareFormatted LangErrorMustHaveProperPrefix data)
-
-    let prefixedValidator prefix =
-        let data = [ "prefix", prefix ] |> Map.ofList
-        WithMessage.prefixedValidator prefix (EncodedError.prepareFormatted LangErrorMustHaveProperPrefix data)
-
-    let parseTrimmed (field: string) = StringValueType.parseTrimmed field
+        this.WithValidator validator
 
 
 [<RequireQualifiedAccess>]

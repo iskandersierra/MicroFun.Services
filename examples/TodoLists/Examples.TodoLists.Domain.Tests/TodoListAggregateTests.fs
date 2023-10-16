@@ -233,7 +233,6 @@ type TodoListAggregateArb() =
 
         Arb.fromGenShrink (generator, shrinker)
 
-
     static member TodoListAggregate() : Arbitrary<TodoListAggregate> =
         let generator =
             Gen.frequency [ 1, Gen.constant TodoListAggregate.None
@@ -261,7 +260,6 @@ let ``TodoListAggregate.initial should be None`` () =
     let actual = TodoListAggregate.initial
 
     Assert.Equal(expected, actual)
-
 
 [<Property(Verbose = Verbose)>]
 let ``TodoListAggregate.applyEvent Created`` (aggregate: TodoListAggregate) (title: string) =
@@ -311,7 +309,7 @@ let ``TodoListAggregate.applyEvent Archived`` (aggregate: TodoListAggregate) =
 
     Assert.Equal(expected, actual)
 
-[<Property(Verbose = Verbose)>]
+[<Property(Verbose = Verbose, Arbitrary = [| typeof<TodoListAggregateArb> |])>]
 let ``TodoListAggregate.applyEvent ItemAdded`` (aggregate: TodoListAggregate) (itemId: int) (title: string) =
     let event =
         TodoListEvent.ItemAdded(TodoItemId.UnsafeParse itemId, TodoItemTitle.UnsafeParse title)

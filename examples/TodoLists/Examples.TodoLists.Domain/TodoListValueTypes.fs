@@ -17,6 +17,12 @@ type TodoItemId = int<todoItemId>
 and [<Measure>] todoItemId
 
 
+module TodoListIdType =
+    [<Literal>]
+    let FieldName = "TodoListId"
+    [<Literal>]
+    let Prefix = "tdls-"
+
 module TodoListTitleType =
     [<Literal>]
     let FieldName = "TodoListTitle"
@@ -40,6 +46,15 @@ module TodoItemIdType =
 
 [<AutoOpen>]
 module TodoListValueTypes =
+    let TodoListId =
+        let getValue (value: TodoListId) = UMX.untag value
+        ValueType
+            .Builder<TodoListId, string>(TodoListIdType.FieldName)
+            .WithConversions(getValue, UMX.tag<todoListId>)
+            .EnsureTrimming()
+            .IsEntityId(TodoListIdType.Prefix)
+            .Create()
+
     let TodoListTitle =
         let getValue (value: TodoListTitle) = UMX.untag value
         ValueType
@@ -65,43 +80,3 @@ module TodoListValueTypes =
             .WithConversions(getValue, UMX.tag<todoItemId>)
             .IsPositive()
             .Create()
-
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module TodoListId =
-    [<Literal>]
-    let Prefix = "tdl-"
-
-    [<Literal>]
-    let FieldName = "TodoListId"
-
-    let inline getValue (value: TodoListId) = UMX.untag value
-    let inline unsafeParse (value: string) : TodoListId = UMX.tag<todoListId> value
-
-    let validator =
-        EntityIdValueType.prefixedValidator Prefix
-
-    let parse =
-        EntityIdValueType.parseTrimmed FieldName unsafeParse validator
-
-    let mapValue =
-        ValueType.valueMapper getValue unsafeParse
-
-
-// [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-// module TodoItemId =
-//     [<Literal>]
-//     let FieldName = "TodoItemId"
-
-//     let inline getValue (value: TodoItemId) = UMX.untag value
-//     let inline unsafeParse (value: int) : TodoItemId = UMX.tag<todoItemId> value
-
-//     let initial = unsafeParse 1
-
-//     let validator = Int32ValueType.mustBePositiveValidator
-
-//     let parse =
-//         ValueType.parse FieldName unsafeParse validator
-
-//     let mapValue =
-//         ValueType.valueMapper getValue unsafeParse
