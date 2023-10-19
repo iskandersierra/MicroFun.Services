@@ -1,6 +1,7 @@
 namespace Examples.TodoLists.Domain
 
 open FsToolkit.ErrorHandling
+open MicroFun.Shared.Domain
 open Validus
 
 
@@ -37,7 +38,7 @@ module TodoListState =
     let create title =
         { TodoListState.title = title
           items = []
-          nextId = TodoItemId.UnsafeParse 1 }
+          nextId = TodoItemId.valueType.UnsafeParse 1 }
 
     let setTitle title (state: TodoListState) = { state with title = title }
     let setNextId nextId (state: TodoListState) = { state with nextId = nextId }
@@ -94,7 +95,7 @@ module TodoListAggregate =
             aggregate
             |> mapExisting (
                 TodoListState.addItem (TodoItemState.create itemId title)
-                >> TodoListState.setNextId (itemId |> TodoItemId.MapValue ((+) 1))
+                >> TodoListState.setNextId (itemId |> TodoItemId.valueType.MapValue ((+) 1))
             )
 
         | TodoListEvent.ItemTitleChanged (itemId, title) ->
@@ -112,6 +113,13 @@ module TodoListAggregate =
         | TodoListEvent.ItemArchived itemId ->
             aggregate
             |> mapExisting (TodoListState.removeItem itemId)
+
+
+    let projection =
+        { new IItemProjection<TodoListAggregate, TodoListEvent> with
+            member _.InitialItem = initial
+            member _.ApplyEvent aggregate event = applyEvent aggregate event }
+
 
     [<Literal>]
     let Aggregate = "Aggregate"

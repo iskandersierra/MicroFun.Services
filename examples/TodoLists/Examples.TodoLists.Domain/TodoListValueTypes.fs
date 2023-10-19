@@ -17,13 +17,25 @@ type TodoItemId = int<todoItemId>
 and [<Measure>] todoItemId
 
 
-module TodoListIdType =
+[<RequireQualifiedAccess>]
+module TodoListId =
     [<Literal>]
     let FieldName = "TodoListId"
     [<Literal>]
     let Prefix = "tdls-"
 
-module TodoListTitleType =
+    let valueType =
+        let getValue (value: TodoListId) = UMX.untag value
+        ValueType
+            .Builder<TodoListId, string>(FieldName)
+            .WithConversions(getValue, UMX.tag<todoListId>)
+            .EnsureTrimming()
+            .IsEntityId(Prefix)
+            .Create()
+
+
+[<RequireQualifiedAccess>]
+module TodoListTitle =
     [<Literal>]
     let FieldName = "TodoListTitle"
     [<Literal>]
@@ -31,7 +43,18 @@ module TodoListTitleType =
     [<Literal>]
     let MaxLength = 100
 
-module TodoItemTitleType =
+    let valueType =
+        let getValue (value: TodoListTitle) = UMX.untag value
+        ValueType
+            .Builder<TodoListTitle, string>(FieldName)
+            .WithConversions(getValue, UMX.tag<todoListTitle>)
+            .EnsureTrimming()
+            .MustHaveLengthBetween(MinLength, MaxLength)
+            .Create()
+
+
+[<RequireQualifiedAccess>]
+module TodoItemTitle =
     [<Literal>]
     let FieldName = "TodoItemTitle"
     [<Literal>]
@@ -39,44 +62,25 @@ module TodoItemTitleType =
     [<Literal>]
     let MaxLength = 100
 
-module TodoItemIdType =
+    let valueType =
+        let getValue (value: TodoItemTitle) = UMX.untag value
+        ValueType
+            .Builder<TodoItemTitle, string>(FieldName)
+            .WithConversions(getValue, UMX.tag<todoItemTitle>)
+            .EnsureTrimming()
+            .MustHaveLengthBetween(MinLength, MaxLength)
+            .Create()
+
+
+[<RequireQualifiedAccess>]
+module TodoItemId =
     [<Literal>]
     let FieldName = "TodoItemId"
 
-
-[<AutoOpen>]
-module TodoListValueTypes =
-    let TodoListId =
-        let getValue (value: TodoListId) = UMX.untag value
-        ValueType
-            .Builder<TodoListId, string>(TodoListIdType.FieldName)
-            .WithConversions(getValue, UMX.tag<todoListId>)
-            .EnsureTrimming()
-            .IsEntityId(TodoListIdType.Prefix)
-            .Create()
-
-    let TodoListTitle =
-        let getValue (value: TodoListTitle) = UMX.untag value
-        ValueType
-            .Builder<TodoListTitle, string>(TodoListTitleType.FieldName)
-            .WithConversions(getValue, UMX.tag<todoListTitle>)
-            .EnsureTrimming()
-            .MustHaveLengthBetween(TodoListTitleType.MinLength, TodoListTitleType.MaxLength)
-            .Create()
-
-    let TodoItemTitle =
-        let getValue (value: TodoItemTitle) = UMX.untag value
-        ValueType
-            .Builder<TodoItemTitle, string>(TodoItemTitleType.FieldName)
-            .WithConversions(getValue, UMX.tag<todoItemTitle>)
-            .EnsureTrimming()
-            .MustHaveLengthBetween(TodoItemTitleType.MinLength, TodoItemTitleType.MaxLength)
-            .Create()
-
-    let TodoItemId =
+    let valueType =
         let getValue (value: TodoItemId) = UMX.untag value
         ValueType
-            .Builder<TodoItemId, int>(TodoItemIdType.FieldName)
+            .Builder<TodoItemId, int>(FieldName)
             .WithConversions(getValue, UMX.tag<todoItemId>)
             .IsPositive()
             .Create()

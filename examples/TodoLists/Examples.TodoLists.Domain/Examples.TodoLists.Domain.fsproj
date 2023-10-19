@@ -8,7 +8,7 @@
   <ItemGroup>
     <Compile Include="TodoListValueTypes.fs" />
     <Compile Include="TodoListEvents.fs" />
-    <Compile Include="TodoListCommands.fs" />
+    <Compile Include="TodoListCommand.fs" />
     <Compile Include="TodoListAggregate.fs" />
     <Compile Include="TodoListSimpleProjection.fs" />
     <Compile Include="TodoListDetailsProjection.fs" />

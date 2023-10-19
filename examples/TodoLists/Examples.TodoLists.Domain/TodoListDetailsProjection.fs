@@ -1,10 +1,11 @@
 namespace Examples.TodoLists.Domain
 
 open FsToolkit.ErrorHandling
+open MicroFun.Shared.Domain
 
 
 [<RequireQualifiedAccess>]
-type TodoListDetailsProjection =
+type TodoListDetails =
     | None
     | Existing of TodoListDetailsState
     | Archived
@@ -59,21 +60,21 @@ module TodoListDetailsState =
 
 
 [<RequireQualifiedAccess>]
-module TodoListDetailsProjection =
-    let initial = TodoListDetailsProjection.None
+module TodoListDetails =
+    let initial = TodoListDetails.None
 
     let mapExisting fn aggregate =
         match aggregate with
-        | TodoListDetailsProjection.None -> aggregate
-        | TodoListDetailsProjection.Archived _ -> aggregate
-        | TodoListDetailsProjection.Existing state -> TodoListDetailsProjection.Existing(fn state)
+        | TodoListDetails.None -> aggregate
+        | TodoListDetails.Archived _ -> aggregate
+        | TodoListDetails.Existing state -> TodoListDetails.Existing(fn state)
 
 
-    let applyEvent (aggregate: TodoListDetailsProjection) =
+    let applyEvent (aggregate: TodoListDetails) =
         function
         | TodoListEvent.Created title ->
             TodoListDetailsState.create title
-            |> TodoListDetailsProjection.Existing
+            |> TodoListDetails.Existing
 
         | TodoListEvent.TitleChanged title ->
             aggregate
@@ -81,9 +82,9 @@ module TodoListDetailsProjection =
 
         | TodoListEvent.Archived ->
             match aggregate with
-            | TodoListDetailsProjection.None -> aggregate
-            | TodoListDetailsProjection.Archived _ -> aggregate
-            | TodoListDetailsProjection.Existing _ -> TodoListDetailsProjection.Archived
+            | TodoListDetails.None -> aggregate
+            | TodoListDetails.Archived _ -> aggregate
+            | TodoListDetails.Existing _ -> TodoListDetails.Archived
 
 
         | TodoListEvent.ItemAdded (itemId, title) ->
@@ -105,3 +106,9 @@ module TodoListDetailsProjection =
         | TodoListEvent.ItemArchived itemId ->
             aggregate
             |> mapExisting (TodoListDetailsState.removeItem itemId)
+
+
+    let projection =
+        { new IItemProjection<TodoListDetails, TodoListEvent> with
+              member this.InitialItem = initial
+              member this.ApplyEvent aggregate event = applyEvent aggregate event }

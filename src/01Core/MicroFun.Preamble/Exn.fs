@@ -32,3 +32,5 @@ module Exn =
 [<AutoOpen>]
 module ExnPreamble =
     let inline notImpl _ = raise <| NotImplementedException()
+
+    let inline unreachable _ = raise <| UnreachableException()

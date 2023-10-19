@@ -1,8 +1,10 @@
 namespace Examples.TodoLists.Domain
 
+open MicroFun.Shared.Domain
+
 
 [<RequireQualifiedAccess>]
-type TodoListSimpleProjection =
+type TodoListSimple =
     | None
     | Existing of TodoListSimpleState
     | Archived
@@ -20,21 +22,21 @@ module TodoListSimpleState =
 
 
 [<RequireQualifiedAccess>]
-module TodoListSimpleProjection =
-    let initial = TodoListSimpleProjection.None
+module TodoListSimple =
+    let initial = TodoListSimple.None
 
     let mapExisting fn aggregate =
         match aggregate with
-        | TodoListSimpleProjection.None -> aggregate
-        | TodoListSimpleProjection.Archived _ -> aggregate
-        | TodoListSimpleProjection.Existing state -> TodoListSimpleProjection.Existing(fn state)
+        | TodoListSimple.None -> aggregate
+        | TodoListSimple.Archived _ -> aggregate
+        | TodoListSimple.Existing state -> TodoListSimple.Existing(fn state)
 
 
-    let applyEvent (aggregate: TodoListSimpleProjection) =
+    let applyEvent (aggregate: TodoListSimple) =
         function
         | TodoListEvent.Created title ->
             TodoListSimpleState.create title
-            |> TodoListSimpleProjection.Existing
+            |> TodoListSimple.Existing
 
         | TodoListEvent.TitleChanged title ->
             aggregate
@@ -42,9 +44,14 @@ module TodoListSimpleProjection =
 
         | TodoListEvent.Archived ->
             match aggregate with
-            | TodoListSimpleProjection.None -> aggregate
-            | TodoListSimpleProjection.Archived _ -> aggregate
-            | TodoListSimpleProjection.Existing _ -> TodoListSimpleProjection.Archived
+            | TodoListSimple.None -> aggregate
+            | TodoListSimple.Archived _ -> aggregate
+            | TodoListSimple.Existing _ -> TodoListSimple.Archived
 
 
         | _ -> aggregate
+
+    let projection =
+        { new IItemProjection<TodoListSimple, TodoListEvent> with
+              member this.InitialItem = initial
+              member this.ApplyEvent aggregate event = applyEvent aggregate event }

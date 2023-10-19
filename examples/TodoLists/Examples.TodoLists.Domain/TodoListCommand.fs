@@ -21,13 +21,13 @@ type TodoListCommand =
 module TodoListCommand =
     let parseCreate (title: string) : ValidationResult<TodoListCommand> =
         validate {
-            let! title = TodoListTitle.TryParse title
+            let! title = TodoListTitle.valueType.TryParse title
             return TodoListCommand.Create title
         }
 
     let parseChangeTitle (title: string) : ValidationResult<TodoListCommand> =
         validate {
-            let! title = TodoListTitle.TryParse title
+            let! title = TodoListTitle.valueType.TryParse title
             return TodoListCommand.ChangeTitle title
         }
 
@@ -37,31 +37,31 @@ module TodoListCommand =
 
     let parseAddItem (title: string) : ValidationResult<TodoListCommand> =
         validate {
-            let! title = TodoItemTitle.TryParse title
+            let! title = TodoItemTitle.valueType.TryParse title
             return TodoListCommand.AddItem title
         }
 
     let parseChangeItemTitle (itemId: int) (title: string) : ValidationResult<TodoListCommand> =
         validate {
-            let! itemId = TodoItemId.TryParse itemId
-            and! title = TodoItemTitle.TryParse title
+            let! itemId = TodoItemId.valueType.TryParse itemId
+            and! title = TodoItemTitle.valueType.TryParse title
             return TodoListCommand.ChangeItemTitle(itemId, title)
         }
 
     let parseCompleteItem (itemId: int) : ValidationResult<TodoListCommand> =
         validate {
-            let! itemId = TodoItemId.TryParse itemId
+            let! itemId = TodoItemId.valueType.TryParse itemId
             return TodoListCommand.CompleteItem itemId
         }
 
     let parseReopenItem (itemId: int) : ValidationResult<TodoListCommand> =
         validate {
-            let! itemId = TodoItemId.TryParse itemId
+            let! itemId = TodoItemId.valueType.TryParse itemId
             return TodoListCommand.ReopenItem itemId
         }
 
     let parseArchiveItem (itemId: int) : ValidationResult<TodoListCommand> =
         validate {
-            let! itemId = TodoItemId.TryParse itemId
+            let! itemId = TodoItemId.valueType.TryParse itemId
             return TodoListCommand.ArchiveItem itemId
         }

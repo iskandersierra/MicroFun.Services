@@ -7,6 +7,7 @@
     <Compile Include="Preamble.fs" />
     <Compile Include="Obj.fs" />
     <Compile Include="Tuples.fs" />
+    <Compile Include="Fn.fs" />
     <Compile Include="Seq.fs" />
     <Compile Include="Exn.fs" />
     <Compile Include="Option.fs" />

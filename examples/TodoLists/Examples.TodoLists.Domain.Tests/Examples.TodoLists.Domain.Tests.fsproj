@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="TodoListValidationTests.fs" />
+    <Compile Include="TodoListValueTypesTests.fs" />
+    <Compile Include="TodoListCommandTests.fs" />
     <Compile Include="TodoListAggregateTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -30,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.Domain.Testing\MicroFun.Shared.Domain.Testing.fsproj" />
     <ProjectReference Include="..\Examples.TodoLists.Domain\Examples.TodoLists.Domain.fsproj" />
   </ItemGroup>
 
