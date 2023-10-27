@@ -1,6 +1,6 @@
 module MicroFun.Shared.Domain.Testing.ResultAssertions
 
-open Xunit
+open Xunit // Move to Xunit related library
 
 let assertResultOk (expected: 'a) (actual: Result<'a, 'e>) =
     match actual with

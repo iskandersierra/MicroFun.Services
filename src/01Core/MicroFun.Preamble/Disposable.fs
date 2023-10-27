@@ -5,7 +5,7 @@ open System
 [<RequireQualifiedAccess>]
 module Disposable =
     let inline dispose (x: #IDisposable) =
-        if obj.ReferenceEquals(x, null) |> not then
+        if Obj.isNotNull x then
             x.Dispose()
 
     let inline disposeObj (x: obj) =

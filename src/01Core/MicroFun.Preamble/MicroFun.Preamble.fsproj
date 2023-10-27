@@ -10,9 +10,10 @@
     <Compile Include="Fn.fs" />
     <Compile Include="Seq.fs" />
     <Compile Include="Exn.fs" />
-    <Compile Include="Option.fs" />
-    <Compile Include="Result.fs" />
     <Compile Include="Disposable.fs" />
+    <Compile Include="Option.fs" />
+    <Compile Include="ValueOption.fs" />
+    <Compile Include="Result.fs" />
     <Compile Include="Comparer.fs" />
     <Compile Include="String.fs" />
     <Compile Include="StringBuilder.fs" />
@@ -20,6 +21,9 @@
     <Compile Include="Crypto.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.9.0" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.10.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="7.0.401" />
   </ItemGroup>
 </Project>

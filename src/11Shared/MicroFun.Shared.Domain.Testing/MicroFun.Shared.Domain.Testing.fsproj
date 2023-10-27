@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="ResultAssertions.fs" />
-    <Compile Include="ValidationResultAssertions.fs" />
     <Compile Include="EncodedErrorAssertions.fs" />
     <Compile Include="MicroTestTypes.fs" />
     <Compile Include="MicroShrink.fs" />
@@ -18,11 +17,15 @@
   <ItemGroup>
     <PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
     <PackageReference Include="Unquote" Version="6.1.0" />
-    <PackageReference Include="xunit" Version="2.5.1" />
+    <PackageReference Include="xunit" Version="2.5.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\examples\TodoLists\Examples.TodoLists.Domain\Examples.TodoLists.Domain.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="7.0.401" />
   </ItemGroup>
 
 </Project>

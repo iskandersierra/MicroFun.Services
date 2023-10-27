@@ -11,6 +11,9 @@
   <ItemGroup>
     <Compile Include="TodoListValueTypesTests.fs" />
     <Compile Include="TodoListCommandTests.fs" />
+    <Compile Include="TodoListValueTypesArb.fs" />
+    <Compile Include="TodoListSimpleProjectionTests.fs" />
+    <Compile Include="TodoListDetailsTests.fs" />
     <Compile Include="TodoListAggregateTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -19,8 +22,8 @@
     <PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="Unquote" Version="6.1.0" />
-    <PackageReference Include="xunit" Version="2.5.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.1">
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -33,6 +36,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.Domain.Testing\MicroFun.Shared.Domain.Testing.fsproj" />
     <ProjectReference Include="..\Examples.TodoLists.Domain\Examples.TodoLists.Domain.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="7.0.401" />
   </ItemGroup>
 
 </Project>

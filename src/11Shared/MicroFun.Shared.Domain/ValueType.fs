@@ -151,3 +151,46 @@ module ValueType =
     let Builder<'valueType, 'underlying> fieldName =
         BuilderForConversion<'valueType, 'underlying> fieldName
 
+type CustomValueType<'valueType, 'underlying>(factory: unit -> IValueType<'valueType, 'underlying>) =
+
+    let inner = factory()
+
+    new(fieldName: string, config: ValueType.BuilderForConversion<'valueType, 'underlying> -> ValueType.BuilderForValidations<'valueType, 'underlying>) =
+        let factory () =
+            (config (ValueType.Builder<'valueType, 'underlying> fieldName)).Create()
+        CustomValueType(factory)
+
+    member this.FieldName = inner.FieldName
+    member this.GetValue value = inner.GetValue value
+    member this.UnsafeParse underlying = inner.UnsafeParse underlying
+    member this.Validator = inner.Validator
+    member this.TryParseAs field value = inner.TryParseAs field value
+    member this.TryParse value = inner.TryParse value
+    member this.ParseAs field value = inner.ParseAs field value
+    member this.Parse value = inner.Parse value
+    member this.TryBindValueAs field f value = inner.TryBindValueAs field f value
+    member this.BindValueAs field f value = inner.BindValueAs field f value
+    member this.TryBindValue f value = inner.TryBindValue f value
+    member this.BindValue f value = inner.BindValue f value
+    member this.TryMapValueAs field f value = inner.TryMapValueAs field f value
+    member this.MapValueAs field f value = inner.MapValueAs field f value
+    member this.TryMapValue f value = inner.TryMapValue f value
+    member this.MapValue f value = inner.MapValue f value
+
+    interface IValueType<'valueType, 'underlying> with
+        member this.FieldName = inner.FieldName
+        member this.GetValue value = inner.GetValue value
+        member this.UnsafeParse underlying = inner.UnsafeParse underlying
+        member this.Validator = inner.Validator
+        member this.TryParseAs field value = inner.TryParseAs field value
+        member this.TryParse value = inner.TryParse value
+        member this.ParseAs field value = inner.ParseAs field value
+        member this.Parse value = inner.Parse value
+        member this.TryBindValueAs field f value = inner.TryBindValueAs field f value
+        member this.BindValueAs field f value = inner.BindValueAs field f value
+        member this.TryBindValue f value = inner.TryBindValue f value
+        member this.BindValue f value = inner.BindValue f value
+        member this.TryMapValueAs field f value = inner.TryMapValueAs field f value
+        member this.MapValueAs field f value = inner.MapValueAs field f value
+        member this.TryMapValue f value = inner.TryMapValue f value
+        member this.MapValue f value = inner.MapValue f value

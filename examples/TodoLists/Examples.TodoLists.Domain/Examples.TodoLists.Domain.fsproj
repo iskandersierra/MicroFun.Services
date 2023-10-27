@@ -1,21 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="TodoListValueTypes.fs" />
     <Compile Include="TodoListEvents.fs" />
     <Compile Include="TodoListCommand.fs" />
-    <Compile Include="TodoListAggregate.fs" />
     <Compile Include="TodoListSimpleProjection.fs" />
     <Compile Include="TodoListDetailsProjection.fs" />
+    <Compile Include="TodoListAggregate.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.Domain\MicroFun.Shared.Domain.fsproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="7.0.401" />
+  </ItemGroup>
 </Project>

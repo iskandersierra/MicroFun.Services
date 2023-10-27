@@ -2,7 +2,7 @@ module MicroFun.Shared.Domain.Testing.EncodedErrorAssertions
 
 open MicroFun.Shared.Domain
 open Validus
-open Xunit
+open Xunit // Move to Xunit related library
 
 let assertHasSingleEncodedError (expectedError: EncodedError) (actual: ValidationResult<'a>) =
     match actual with

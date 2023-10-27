@@ -16,4 +16,8 @@
     <ProjectReference Include="..\..\..\src\11Shared\MicroFun.Shared.Application\MicroFun.Shared.Application.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="7.0.401" />
+  </ItemGroup>
+
 </Project>

@@ -1,9 +1,6 @@
-module StringBuilderTests
+module MicroFun.Preamble.Tests.StringBuilderTests
 
-open System
 open Xunit
-open FsCheck
-open FsCheck.Xunit
 open Swensen.Unquote
 
 open MicroFun
@@ -164,7 +161,7 @@ let ``stringBuilder.tryWith error`` () =
     test <@ actual = expected @>
 
 [<Fact>]
-let ``stringBuilder.tryFinally`` () =
+let ``stringBuilder.tryFinally no error`` () =
     let mutable finallized = false
     let actual =
         stringBuilder {
@@ -176,6 +173,20 @@ let ``stringBuilder.tryFinally`` () =
 
     let expected = "42"
     test <@ actual = expected @>
+    test <@ finallized @>
+
+[<Fact>]
+let ``stringBuilder.tryFinally error`` () =
+    let mutable finallized = false
+    let exn =
+        Assert.ThrowsAny<exn>(fun() ->
+            stringBuilder {
+                try
+                    do failwith "err"
+                    yield 42
+                finally
+                    finallized <- true
+            } |> ignore)
     test <@ finallized @>
 
 [<Fact>]

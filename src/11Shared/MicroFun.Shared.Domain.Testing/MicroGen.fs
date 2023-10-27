@@ -1,9 +1,7 @@
 [<RequireQualifiedAccess>]
 module MicroFun.Shared.Domain.Testing.MicroGen
 
-open Xunit
 open FsCheck
-open FsCheck.Xunit
 open MicroFun
 open MicroFun.Shared.Domain
 open Validus

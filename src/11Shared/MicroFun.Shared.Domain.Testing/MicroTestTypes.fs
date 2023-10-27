@@ -1,10 +1,5 @@
 namespace MicroFun.Shared.Domain.Testing
 
-open MicroFun
-open Xunit
-open FsCheck
-open FsCheck.Xunit
-
 [<Struct>]
 type Word =
     | Word of value: string

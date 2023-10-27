@@ -1,4 +1,4 @@
-module TodoListValidationTests
+module Examples.TodoLists.Domain.Tests.TodoListValidationTests
 
 open System
 open MicroFun.Shared.Domain

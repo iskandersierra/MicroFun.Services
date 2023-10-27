@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="User.fs" />
+    <Compile Include="Library.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.UMX" Version="1.1.0" />
+    <ProjectReference Include="..\MicroFun.Preamble\MicroFun.Preamble.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,14 +24,17 @@ module TodoListId =
     [<Literal>]
     let Prefix = "tdls-"
 
-    let valueType =
-        let getValue (value: TodoListId) = UMX.untag value
-        ValueType
-            .Builder<TodoListId, string>(FieldName)
-            .WithConversions(getValue, UMX.tag<todoListId>)
-            .EnsureTrimming()
-            .IsEntityId(Prefix)
-            .Create()
+    type ValueType() =
+        inherit CustomValueType<TodoListId, string>(FieldName, fun builder ->
+            let getValue (value: TodoListId) = UMX.untag value
+            ValueType
+                .Builder<TodoListId, string>(FieldName)
+                .WithConversions(getValue, UMX.tag<todoListId>)
+                .EnsureTrimming()
+                .IsEntityId(Prefix))
+
+
+    let valueType = ValueType()
 
 
 [<RequireQualifiedAccess>]
@@ -43,14 +46,16 @@ module TodoListTitle =
     [<Literal>]
     let MaxLength = 100
 
-    let valueType =
-        let getValue (value: TodoListTitle) = UMX.untag value
-        ValueType
-            .Builder<TodoListTitle, string>(FieldName)
-            .WithConversions(getValue, UMX.tag<todoListTitle>)
-            .EnsureTrimming()
-            .MustHaveLengthBetween(MinLength, MaxLength)
-            .Create()
+    type ValueType() =
+        inherit CustomValueType<TodoListTitle, string>(FieldName, fun builder ->
+            let getValue (value: TodoListTitle) = UMX.untag value
+            ValueType
+                .Builder<TodoListTitle, string>(FieldName)
+                .WithConversions(getValue, UMX.tag<todoListTitle>)
+                .EnsureTrimming()
+                .MustHaveLengthBetween(MinLength, MaxLength))
+
+    let valueType = ValueType()
 
 
 [<RequireQualifiedAccess>]
@@ -62,14 +67,16 @@ module TodoItemTitle =
     [<Literal>]
     let MaxLength = 100
 
-    let valueType =
-        let getValue (value: TodoItemTitle) = UMX.untag value
-        ValueType
-            .Builder<TodoItemTitle, string>(FieldName)
-            .WithConversions(getValue, UMX.tag<todoItemTitle>)
-            .EnsureTrimming()
-            .MustHaveLengthBetween(MinLength, MaxLength)
-            .Create()
+    type ValueType() =
+        inherit CustomValueType<TodoItemTitle, string>(FieldName, fun builder ->
+            let getValue (value: TodoItemTitle) = UMX.untag value
+            ValueType
+                .Builder<TodoItemTitle, string>(FieldName)
+                .WithConversions(getValue, UMX.tag<todoItemTitle>)
+                .EnsureTrimming()
+                .MustHaveLengthBetween(MinLength, MaxLength))
+
+    let valueType = ValueType()
 
 
 [<RequireQualifiedAccess>]
@@ -77,10 +84,12 @@ module TodoItemId =
     [<Literal>]
     let FieldName = "TodoItemId"
 
-    let valueType =
-        let getValue (value: TodoItemId) = UMX.untag value
-        ValueType
-            .Builder<TodoItemId, int>(FieldName)
-            .WithConversions(getValue, UMX.tag<todoItemId>)
-            .IsPositive()
-            .Create()
+    type ValueType() =
+        inherit CustomValueType<TodoItemId, int>(FieldName, fun builder ->
+            let getValue (value: TodoItemId) = UMX.untag value
+            ValueType
+                .Builder<TodoItemId, int>(FieldName)
+                .WithConversions(getValue, UMX.tag<todoItemId>)
+                .IsPositive())
+
+    let valueType = ValueType()

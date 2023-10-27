@@ -63,11 +63,18 @@ module TodoListDetailsState =
 module TodoListDetails =
     let initial = TodoListDetails.None
 
-    let mapExisting fn aggregate =
-        match aggregate with
-        | TodoListDetails.None -> aggregate
-        | TodoListDetails.Archived _ -> aggregate
-        | TodoListDetails.Existing state -> TodoListDetails.Existing(fn state)
+    let bindNone fn =
+        function
+        | TodoListDetails.None -> fn ()
+        | aggregate -> aggregate
+
+    let bindExisting fn =
+        function
+        | TodoListDetails.Existing state -> fn state
+        | aggregate -> aggregate
+
+    let mapExisting fn =
+        bindExisting (fn >> TodoListDetails.Existing)
 
 
     let applyEvent (aggregate: TodoListDetails) =
@@ -107,8 +114,12 @@ module TodoListDetails =
             aggregate
             |> mapExisting (TodoListDetailsState.removeItem itemId)
 
+    type Projection() =
+        member this.InitialItem = initial
+        member this.ApplyEvent aggregate event = applyEvent aggregate event
 
-    let projection =
-        { new IItemProjection<TodoListDetails, TodoListEvent> with
-              member this.InitialItem = initial
-              member this.ApplyEvent aggregate event = applyEvent aggregate event }
+        interface IItemProjection<TodoListDetails, TodoListEvent> with
+            member this.InitialItem = initial
+            member this.ApplyEvent aggregate event = applyEvent aggregate event
+
+    let projection = Projection()

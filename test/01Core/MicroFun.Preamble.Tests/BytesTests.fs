@@ -1,4 +1,4 @@
-module BytesTests
+module MicroFun.Preamble.Tests.BytesTests
 
 open System
 open Xunit
@@ -10,6 +10,7 @@ open MicroFun
 
 [<Literal>]
 let Verbose = false
+
 
 [<Property(Verbose = Verbose)>]
 let ``Bytes.toUppercaseHexString`` (NonNull bytes) =

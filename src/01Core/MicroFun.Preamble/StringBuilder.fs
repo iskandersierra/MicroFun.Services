@@ -9,15 +9,15 @@ module StringBuilderCE =
     type Delayed = StringBuilder -> unit
 
 
-    let run (sb: StringBuilder) (delayed: Delayed) : string =
+    let inline run (sb: StringBuilder) (delayed: Delayed) : string =
         do delayed sb
         sb.ToString()
 
-    let inline delay (f: unit -> Delayed) : Delayed = fun sb -> (f ()) sb
+    let inline delay ([<InlineIfLambda>] f: unit -> Delayed) : Delayed = fun sb -> (f ()) sb
 
     let zero: Delayed = ignore
 
-    let combine (f: Delayed) (g: Delayed) : Delayed =
+    let inline combine ([<InlineIfLambda>] f: Delayed) ([<InlineIfLambda>] g: Delayed) : Delayed =
         fun sb ->
             do f sb
             do g sb
@@ -57,21 +57,21 @@ module StringBuilderCE =
     let inline yieldFloat32 (v: float32) : Delayed = fun sb -> sb.Append(v) |> ignore
 
 
-    let tryWith (handler: exn -> Delayed) (body: Delayed) : Delayed =
+    let inline tryWith ([<InlineIfLambda>] handler: exn -> Delayed) ([<InlineIfLambda>] body: Delayed) : Delayed =
         fun sb ->
             try
                 body sb
             with
             | exn -> (handler exn) sb
 
-    let tryFinally (handler: unit -> unit) (body: Delayed) : Delayed =
+    let inline tryFinally ([<InlineIfLambda>] handler: unit -> unit) ([<InlineIfLambda>] body: Delayed) : Delayed =
         fun sb ->
             try
                 body sb
             finally
                 handler ()
 
-    let using (body: 'd -> Delayed) (disposable: #IDisposable) =
+    let inline using ([<InlineIfLambda>] body: 'd -> Delayed) (disposable: #IDisposable) =
         tryFinally (fun () -> dispose disposable) (fun sb -> body disposable sb)
 
     let rec whileLoop (body: Delayed) (guard: unit -> bool) : Delayed =
@@ -82,7 +82,7 @@ module StringBuilderCE =
             else
                 zero sb
 
-    let forLoop (body: 'a -> Delayed) (source: 'a seq) =
+    let inline forLoop ([<InlineIfLambda>] body: 'a -> Delayed) (source: 'a seq) =
         Seq.getEnumerator source
         |> using (fun enumerator ->
             (fun () -> Seq.moveNext enumerator)
@@ -99,58 +99,58 @@ module StringBuilderCE =
 
         member this.Run delayed = run (createSB ()) delayed
 
-        member this.Delay delayed = delay delayed
+        member inline this.Delay ([<InlineIfLambda>] delayed) = delay delayed
 
-        member this.Zero() = ignore
+        member inline this.Zero() = ignore
 
-        member this.Combine(f, g) = combine f g
-
-
-        member this.Yield value = yieldString value
-
-        member this.Yield value = yieldCharArray value
-
-        member this.Yield value = yieldChar value
-
-        member this.Yield value = yieldStringBuilder value
-
-        member this.Yield value = yieldBool value
-
-        member this.Yield value = yieldObj value
-
-        member this.Yield value = yieldUInt8 value
-
-        member this.Yield value = yieldUInt16 value
-
-        member this.Yield value = yieldUInt32 value
-
-        member this.Yield value = yieldUInt64 value
-
-        member this.Yield value = yieldInt8 value
-
-        member this.Yield value = yieldInt16 value
-
-        member this.Yield value = yieldInt32 value
-
-        member this.Yield value = yieldInt64 value
-
-        member this.Yield value = yieldDecimal value
-
-        member this.Yield value = yieldFloat value
-
-        member this.Yield value = yieldFloat32 value
+        member inline this.Combine([<InlineIfLambda>] f, [<InlineIfLambda>] g) = combine f g
 
 
-        member this.TryWith(body, handler) = tryWith handler body 
+        member inline this.Yield value = yieldString value
 
-        member this.TryFinally(body, handler) = tryFinally handler body 
+        member inline this.Yield value = yieldCharArray value
 
-        member this.Using(disposable, body) = using body disposable 
+        member inline this.Yield value = yieldChar value
+
+        member inline this.Yield value = yieldStringBuilder value
+
+        member inline this.Yield value = yieldBool value
+
+        member inline this.Yield value = yieldObj value
+
+        member inline this.Yield value = yieldUInt8 value
+
+        member inline this.Yield value = yieldUInt16 value
+
+        member inline this.Yield value = yieldUInt32 value
+
+        member inline this.Yield value = yieldUInt64 value
+
+        member inline this.Yield value = yieldInt8 value
+
+        member inline this.Yield value = yieldInt16 value
+
+        member inline this.Yield value = yieldInt32 value
+
+        member inline this.Yield value = yieldInt64 value
+
+        member inline this.Yield value = yieldDecimal value
+
+        member inline this.Yield value = yieldFloat value
+
+        member inline this.Yield value = yieldFloat32 value
 
 
-        member this.While(guard, body) = whileLoop body guard
+        member inline this.TryWith([<InlineIfLambda>] body, [<InlineIfLambda>] handler) = tryWith handler body
 
-        member this.For(source, body) = forLoop body source
+        member inline this.TryFinally([<InlineIfLambda>] body, [<InlineIfLambda>] handler) = tryFinally handler body
+
+        member inline this.Using(disposable, [<InlineIfLambda>] body) = using body disposable
+
+
+        member inline this.While([<InlineIfLambda>] guard, [<InlineIfLambda>] body) = whileLoop body guard
+
+        member inline this.For(source, [<InlineIfLambda>] body) = forLoop body source
 
 
 [<AutoOpen>]

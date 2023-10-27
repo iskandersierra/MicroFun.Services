@@ -1,6 +1,7 @@
 namespace Examples.TodoLists.Domain
 
 open FsToolkit.ErrorHandling
+open MicroFun
 open MicroFun.Shared.Domain
 open Validus
 
@@ -67,12 +68,18 @@ module TodoListState =
 module TodoListAggregate =
     let initial = TodoListAggregate.None
 
-    let mapExisting fn aggregate =
-        match aggregate with
-        | TodoListAggregate.None -> aggregate
-        | TodoListAggregate.Archived _ -> aggregate
-        | TodoListAggregate.Existing state -> TodoListAggregate.Existing(fn state)
+    let bindNone fn =
+        function
+        | TodoListAggregate.None -> fn ()
+        | aggregate -> aggregate
 
+    let bindExisting fn =
+        function
+        | TodoListAggregate.Existing state -> fn state
+        | aggregate -> aggregate
+
+    let mapExisting fn =
+        bindExisting (fn >> TodoListAggregate.Existing)
 
     let applyEvent (aggregate: TodoListAggregate) =
         function
@@ -85,17 +92,15 @@ module TodoListAggregate =
             |> mapExisting (TodoListState.setTitle title)
 
         | TodoListEvent.Archived ->
-            match aggregate with
-            | TodoListAggregate.None -> aggregate
-            | TodoListAggregate.Archived _ -> aggregate
-            | TodoListAggregate.Existing _ -> TodoListAggregate.Archived
+            aggregate
+            |> bindExisting (konst TodoListAggregate.Archived)
 
 
         | TodoListEvent.ItemAdded (itemId, title) ->
             aggregate
             |> mapExisting (
                 TodoListState.addItem (TodoItemState.create itemId title)
-                >> TodoListState.setNextId (itemId |> TodoItemId.valueType.MapValue ((+) 1))
+                >> TodoListState.setNextId (itemId |> TodoItemId.valueType.MapValue((+) 1))
             )
 
         | TodoListEvent.ItemTitleChanged (itemId, title) ->
@@ -115,14 +120,16 @@ module TodoListAggregate =
             |> mapExisting (TodoListState.removeItem itemId)
 
 
-    let projection =
-        { new IItemProjection<TodoListAggregate, TodoListEvent> with
-            member _.InitialItem = initial
-            member _.ApplyEvent aggregate event = applyEvent aggregate event }
+    type Projection() =
+        member _.InitialItem = initial
+        member _.ApplyEvent aggregate event = applyEvent aggregate event
 
+        interface IItemProjection<TodoListAggregate, TodoListEvent> with
+            member this.InitialItem = this.InitialItem
+            member this.ApplyEvent aggregate event = this.ApplyEvent aggregate event
 
-    [<Literal>]
-    let Aggregate = "Aggregate"
+    let projection = Projection()
+
 
     [<Literal>]
     let LangErrorAlreadyExists =
@@ -140,68 +147,98 @@ module TodoListAggregate =
     let LangErrorIsArchived =
         "lang:Examples.TodoList.TodoListAggregate.Error.IsArchived"
 
-    let executeCommand
-        (aggregate: TodoListAggregate)
-        (command: TodoListCommand)
-        : ValidationResult<TodoListEvent list> =
-        let ifNone fn =
-            match aggregate with
-            | TodoListAggregate.None -> fn ()
-            | _ -> Error(ValidationErrors.create Aggregate [ LangErrorAlreadyExists ])
+    let alreadyExistsError =
+        Aggregate.createError LangErrorAlreadyExists
 
-        let ifExists fn =
-            match aggregate with
-            | TodoListAggregate.Existing state -> fn state
-            | TodoListAggregate.None -> Error(ValidationErrors.create Aggregate [ LangErrorDoesNotExist ])
-            | TodoListAggregate.Archived _ -> Error(ValidationErrors.create Aggregate [ LangErrorIsArchived ])
+    let doesNotExistsError =
+        Aggregate.createError LangErrorDoesNotExist
 
-        let ifItemFound itemId fn =
-            ifExists (fun state ->
-                match state.items
-                      |> List.tryFind (fun item -> item.id = itemId)
-                    with
+    let isArchivedError =
+        Aggregate.createError LangErrorIsArchived
+
+    let itemDoesNotExistsError =
+        Aggregate.createError LangErrorItemDoesNotExist
+
+    let ifNone fn =
+        function
+        | TodoListAggregate.None -> fn ()
+        | _ -> alreadyExistsError
+
+    let ifExists fn =
+        function
+        | TodoListAggregate.Existing state -> fn state
+        | TodoListAggregate.None -> doesNotExistsError
+        | TodoListAggregate.Archived _ -> isArchivedError
+
+    let ifItemFound itemId fn =
+        ifExists (fun state ->
+            state.items
+            |> List.tryFind (fun item -> item.id = itemId)
+            |> function
                 | Some item -> fn item
-                | None -> Error(ValidationErrors.create Aggregate [ LangErrorItemDoesNotExist ]))
+                | None -> itemDoesNotExistsError)
 
-
+    let executeCommand (state: TodoListAggregate) (command: TodoListCommand) : ValidationResult<TodoListEvent list> =
         validate {
             match command with
-            | TodoListCommand.Create title -> return! ifNone (fun () -> Ok [ TodoListEvent.Created title ])
+            | TodoListCommand.Create title ->
+                return!
+                    state
+                    |> ifNone (fun () -> Ok [ TodoListEvent.Created title ])
 
             | TodoListCommand.ChangeTitle title ->
                 return!
-                    ifExists (fun state ->
+                    state
+                    |> ifExists (fun state ->
                         match state.title = title with
                         | true -> Ok []
                         | false -> Ok [ TodoListEvent.TitleChanged title ])
 
-            | TodoListCommand.Archive -> return! ifExists (fun _ -> Ok [ TodoListEvent.Archived ])
+            | TodoListCommand.Archive ->
+                return!
+                    state
+                    |> ifExists (fun _ -> Ok [ TodoListEvent.Archived ])
 
 
             | TodoListCommand.AddItem title ->
-                return! ifExists (fun state -> Ok [ TodoListEvent.ItemAdded(state.nextId, title) ])
+                return!
+                    state
+                    |> ifExists (fun state -> Ok [ TodoListEvent.ItemAdded(state.nextId, title) ])
 
             | TodoListCommand.ChangeItemTitle (itemId, title) ->
                 return!
-                    ifItemFound itemId (fun item ->
+                    state
+                    |> ifItemFound itemId (fun item ->
                         match item.title = title with
                         | true -> Ok []
                         | false -> Ok [ TodoListEvent.ItemTitleChanged(itemId, title) ])
 
             | TodoListCommand.CompleteItem itemId ->
                 return!
-                    ifItemFound itemId (fun item ->
+                    state
+                    |> ifItemFound itemId (fun item ->
                         match item.completed with
                         | true -> Ok []
                         | false -> Ok [ TodoListEvent.ItemCompleted itemId ])
 
             | TodoListCommand.ReopenItem itemId ->
                 return!
-                    ifItemFound itemId (fun item ->
+                    state
+                    |> ifItemFound itemId (fun item ->
                         match item.completed with
                         | false -> Ok []
                         | true -> Ok [ TodoListEvent.ItemReopened itemId ])
 
             | TodoListCommand.ArchiveItem itemId ->
-                return! ifItemFound itemId (fun _ -> Ok [ TodoListEvent.ItemArchived itemId ])
+                return!
+                    state
+                    |> ifItemFound itemId (fun _ -> Ok [ TodoListEvent.ItemArchived itemId ])
         }
+
+    type Aggregate() =
+        member this.ExecuteCommand state command = executeCommand state command
+
+        interface IStateAggregate<TodoListAggregate, TodoListCommand, TodoListEvent> with
+            member this.ExecuteCommand state command = this.ExecuteCommand state command
+
+    let aggregate = Aggregate()

@@ -1,4 +1,4 @@
-module TodoListValueTypesTests
+module Examples.TodoLists.Domain.Tests.TodoListValueTypesTests
 
 open MicroFun.Shared.Domain
 open Xunit
