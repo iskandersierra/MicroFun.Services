@@ -2,13 +2,6 @@ namespace Examples.TodoLists.RestApi
 
 open Examples.TodoLists
 open Examples.TodoLists.Application
-open FsToolkit.ErrorHandling
-open Microsoft.AspNetCore.Mvc
-open System
-open System.Collections.Generic
-open System.Linq
-open System.Threading
-open System.Threading.Tasks
 open Validus
 
 
@@ -40,18 +33,3 @@ module TodoListCommand =
         validate {
             return { title = body.title }
         }
-
-
-
-// [<ApiController>]
-// [<Route("api/todo-list")>]
-// type TodoListCommandController() =
-//     inherit ControllerBase()
-
-//     [<HttpPost("create", Name = "TodoListCreate")>]
-//     [<SwaggerResponse>]
-//     member this.TodoListCreate([<FromBody>] body: TodoListCreate, cancel: CancellationToken) =
-//         taskResult {
-//             let! dto = { Application.TodoListCreate.title = ()
-//             ()
-//         }

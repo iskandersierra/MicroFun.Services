@@ -21,17 +21,14 @@ and [<Measure>] todoItemId
 module TodoListId =
     [<Literal>]
     let FieldName = "TodoListId"
+
     [<Literal>]
     let Prefix = "tdls-"
 
+    let inline private getValue (value: TodoListId) = UMX.untag value
+
     type ValueType() =
-        inherit CustomValueType<TodoListId, string>(FieldName, fun builder ->
-            let getValue (value: TodoListId) = UMX.untag value
-            ValueType
-                .Builder<TodoListId, string>(FieldName)
-                .WithConversions(getValue, UMX.tag<todoListId>)
-                .EnsureTrimming()
-                .IsEntityId(Prefix))
+        inherit EntityIdValueType<TodoListId>(FieldName, Prefix, getValue, UMX.tag<todoListId>)
 
 
     let valueType = ValueType()
@@ -41,19 +38,9 @@ module TodoListId =
 module TodoListTitle =
     [<Literal>]
     let FieldName = "TodoListTitle"
-    [<Literal>]
-    let MinLength = 3
-    [<Literal>]
-    let MaxLength = 100
 
     type ValueType() =
-        inherit CustomValueType<TodoListTitle, string>(FieldName, fun builder ->
-            let getValue (value: TodoListTitle) = UMX.untag value
-            ValueType
-                .Builder<TodoListTitle, string>(FieldName)
-                .WithConversions(getValue, UMX.tag<todoListTitle>)
-                .EnsureTrimming()
-                .MustHaveLengthBetween(MinLength, MaxLength))
+        inherit TitleValueType<TodoListTitle>(FieldName, UMX.untag, UMX.tag<todoListTitle>)
 
     let valueType = ValueType()
 
@@ -62,19 +49,9 @@ module TodoListTitle =
 module TodoItemTitle =
     [<Literal>]
     let FieldName = "TodoItemTitle"
-    [<Literal>]
-    let MinLength = 3
-    [<Literal>]
-    let MaxLength = 100
 
     type ValueType() =
-        inherit CustomValueType<TodoItemTitle, string>(FieldName, fun builder ->
-            let getValue (value: TodoItemTitle) = UMX.untag value
-            ValueType
-                .Builder<TodoItemTitle, string>(FieldName)
-                .WithConversions(getValue, UMX.tag<todoItemTitle>)
-                .EnsureTrimming()
-                .MustHaveLengthBetween(MinLength, MaxLength))
+        inherit TitleValueType<TodoItemTitle>(FieldName, UMX.untag, UMX.tag<todoItemTitle>)
 
     let valueType = ValueType()
 
@@ -85,11 +62,7 @@ module TodoItemId =
     let FieldName = "TodoItemId"
 
     type ValueType() =
-        inherit CustomValueType<TodoItemId, int>(FieldName, fun builder ->
-            let getValue (value: TodoItemId) = UMX.untag value
-            ValueType
-                .Builder<TodoItemId, int>(FieldName)
-                .WithConversions(getValue, UMX.tag<todoItemId>)
-                .IsPositive())
+        inherit CustomValueType<TodoItemId, int>
+            (FieldName, UMX.untag, UMX.tag<todoItemId>, fun b -> b.IsPositive())
 
     let valueType = ValueType()

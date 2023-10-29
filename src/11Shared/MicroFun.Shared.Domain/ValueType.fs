@@ -1,6 +1,7 @@
 namespace MicroFun.Shared.Domain
 
 open MicroFun
+open System.Runtime.CompilerServices
 open Validus
 
 exception ValidationErrorsException of ValidationErrors
@@ -20,13 +21,20 @@ type IValueType<'valueType, 'underlying> =
     abstract ParseAs : field: string -> value: 'underlying -> 'valueType
     abstract Parse : value: 'underlying -> 'valueType
 
-    abstract TryBindValueAs : field: string -> f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> ValidationResult<'valueType>
-    abstract BindValueAs : field: string -> f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> 'valueType
+    abstract TryBindValueAs :
+        field: string -> f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> ValidationResult<'valueType>
 
-    abstract TryBindValue : f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> ValidationResult<'valueType>
+    abstract BindValueAs :
+        field: string -> f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> 'valueType
+
+    abstract TryBindValue :
+        f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> ValidationResult<'valueType>
+
     abstract BindValue : f: ('underlying -> ValidationResult<'underlying>) -> 'valueType -> 'valueType
 
-    abstract TryMapValueAs : field: string -> f: ('underlying -> 'underlying) -> 'valueType -> ValidationResult<'valueType>
+    abstract TryMapValueAs :
+        field: string -> f: ('underlying -> 'underlying) -> 'valueType -> ValidationResult<'valueType>
+
     abstract MapValueAs : field: string -> f: ('underlying -> 'underlying) -> 'valueType -> 'valueType
 
     abstract TryMapValue : f: ('underlying -> 'underlying) -> 'valueType -> ValidationResult<'valueType>
@@ -59,7 +67,9 @@ module ValueType =
         (unsafeParse: 'underlying -> 'valueType)
         (validator: Validator<'underlying, 'underlying>)
         =
-        let failWithErrors result = result |> Result.getOr (ValidationErrorsException >> raise)
+        let failWithErrors result =
+            result
+            |> Result.getOr (ValidationErrorsException >> raise)
 
         let tryParse field value =
             validate {
@@ -69,7 +79,8 @@ module ValueType =
 
         let parse field = tryParse field >> failWithErrors
 
-        let tryBindValue field f = getValue >> f >> Result.bind (tryParse field)
+        let tryBindValue field f =
+            getValue >> f >> Result.bind (tryParse field)
 
         let bindValue field f = tryBindValue field f >> failWithErrors
 
@@ -151,14 +162,30 @@ module ValueType =
     let Builder<'valueType, 'underlying> fieldName =
         BuilderForConversion<'valueType, 'underlying> fieldName
 
+
 type CustomValueType<'valueType, 'underlying>(factory: unit -> IValueType<'valueType, 'underlying>) =
 
-    let inner = factory()
+    let inner = factory ()
 
-    new(fieldName: string, config: ValueType.BuilderForConversion<'valueType, 'underlying> -> ValueType.BuilderForValidations<'valueType, 'underlying>) =
+    new(fieldName: string,
+        config: ValueType.BuilderForConversion<'valueType, 'underlying>
+                    -> ValueType.BuilderForValidations<'valueType, 'underlying>) =
         let factory () =
-            (config (ValueType.Builder<'valueType, 'underlying> fieldName)).Create()
+            let builder = ValueType.Builder<'valueType, 'underlying> fieldName
+            let builder = config builder
+            builder.Create()
+
         CustomValueType(factory)
+
+    new(fieldName: string,
+        getValue: 'valueType -> 'underlying,
+        unsafeParse: 'underlying -> 'valueType,
+        config: ValueType.BuilderForValidations<'valueType, 'underlying>
+                    -> ValueType.BuilderForValidations<'valueType, 'underlying>) =
+
+        CustomValueType(fieldName, fun builder ->
+            builder.WithConversions(getValue, unsafeParse) |> config)
+
 
     member this.FieldName = inner.FieldName
     member this.GetValue value = inner.GetValue value
@@ -194,3 +221,32 @@ type CustomValueType<'valueType, 'underlying>(factory: unit -> IValueType<'value
         member this.MapValueAs field f value = inner.MapValueAs field f value
         member this.TryMapValue f value = inner.TryMapValue f value
         member this.MapValue f value = inner.MapValue f value
+
+
+[<Extension>]
+type ValueTypeExtensions() =
+    [<Extension>]
+    static member WithEncodedErrorPrecondition
+        (
+            this: ValueType.BuilderForValidations<'valueType, 'underlying>,
+            encodedError: EncodedError,
+            validator: ValidationMessage -> Validator<'underlying, 'underlying>
+        ) =
+        encodedError
+        |> EncodedError.format
+        |> Fn2.pickFst
+        |> validator
+        |> this.WithPrecondition
+
+    [<Extension>]
+    static member WithEncodedError
+        (
+            this: ValueType.BuilderForValidations<'valueType, 'underlying>,
+            encodedError: EncodedError,
+            validator: ValidationMessage -> Validator<'underlying, 'underlying>
+        ) =
+        encodedError
+        |> EncodedError.format
+        |> Fn2.pickFst
+        |> validator
+        |> this.WithValidator

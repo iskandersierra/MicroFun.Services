@@ -45,8 +45,6 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Examples.TodoLists.RestApi"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "MicroFun.Shared.Domain.Testing", "src\11Shared\MicroFun.Shared.Domain.Testing\MicroFun.Shared.Domain.Testing.fsproj", "{A70BE13E-B802-4432-9AAE-1CED722DCF37}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroFun.Validation", "src\01Core\MicroFun.Validation\MicroFun.Validation.fsproj", "{FEFFBB0A-7F87-43B7-B84D-A678A3D42DC1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,10 +99,6 @@ Global
 		{A70BE13E-B802-4432-9AAE-1CED722DCF37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A70BE13E-B802-4432-9AAE-1CED722DCF37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A70BE13E-B802-4432-9AAE-1CED722DCF37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FEFFBB0A-7F87-43B7-B84D-A678A3D42DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FEFFBB0A-7F87-43B7-B84D-A678A3D42DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FEFFBB0A-7F87-43B7-B84D-A678A3D42DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FEFFBB0A-7F87-43B7-B84D-A678A3D42DC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,7 +122,6 @@ Global
 		{2FB0F651-2E66-4C6B-A683-C6E2929F0EB3} = {75FFD277-2920-4B37-8621-02F41D73136D}
 		{9942E960-AE19-44D8-8E58-2081A30EDF69} = {75FFD277-2920-4B37-8621-02F41D73136D}
 		{A70BE13E-B802-4432-9AAE-1CED722DCF37} = {ECBE2E12-F388-4550-B077-78C22FC1B298}
-		{FEFFBB0A-7F87-43B7-B84D-A678A3D42DC1} = {35F1A081-6D8D-47C0-ACEB-8DFAD94618A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {392965FC-7226-435E-AC93-2847BA5E5411}

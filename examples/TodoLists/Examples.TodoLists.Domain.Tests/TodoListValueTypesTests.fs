@@ -12,6 +12,15 @@ open Examples.TodoLists.Domain
 [<InlineData(null)>]
 [<InlineData("")>]
 [<InlineData("         ")>]
+let ``TodoListTitle.parse invalid is required`` (title: string) =
+    let actual = TodoListTitle.valueType.TryParse title
+
+    let expectedError = StringValueType.ErrorMessages.isRequired
+
+    actual
+    |> assertHasSingleEncodedError expectedError
+
+[<Theory>]
 [<InlineData("Ab")>]
 [<InlineData("Too long title                                                                                      .")>]
 let ``TodoListTitle.parse invalid`` (title: string) =
@@ -19,8 +28,8 @@ let ``TodoListTitle.parse invalid`` (title: string) =
 
     let expectedError =
         StringValueType.ErrorMessages.mustHaveLengthBetween
-            TodoListTitle.MinLength
-            TodoListTitle.MaxLength
+            TitleValueType.MinLength
+            TitleValueType.MaxLength
 
     actual
     |> assertHasSingleEncodedError expectedError
@@ -42,15 +51,24 @@ let ``TodoListTitle.parse valid`` (title: string) =
 [<InlineData(null)>]
 [<InlineData("")>]
 [<InlineData("         ")>]
+let ``TodoItemTitle.parse invalid is required`` (title: string) =
+    let actual = TodoItemTitle.valueType.TryParse title
+
+    let expectedError = StringValueType.ErrorMessages.isRequired
+
+    actual
+    |> assertHasSingleEncodedError expectedError
+
+[<Theory>]
 [<InlineData("Ab")>]
 [<InlineData("Too long title                                                                                      .")>]
-let ``TodoItemTitle.parse invalid`` (title: string) =
+let ``TodoItemTitle.parse invalid length`` (title: string) =
     let actual = TodoItemTitle.valueType.TryParse title
 
     let expectedError =
         StringValueType.ErrorMessages.mustHaveLengthBetween
-            TodoItemTitle.MinLength
-            TodoItemTitle.MaxLength
+            TitleValueType.MinLength
+            TitleValueType.MaxLength
 
     actual
     |> assertHasSingleEncodedError expectedError
